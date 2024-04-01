@@ -6,6 +6,7 @@ RUN npm install
 RUN npm run build
 
 ENV NODE_ENV=production
+ENV DEBUG=relang:*
 
 EXPOSE 8080
 

@@ -7,7 +7,7 @@ const debug = Debug("relang:websocket");
 function startWebSocketServer(httpServer: http.Server) {
   debug("Starting WebSocket server");
 
-  const io = new Server(httpServer);
+  const io = new Server(httpServer, { cors: { origin: "*" } });
 
   io.on("connection", (socket: Socket) => {
     debug("A user connected", socket.id);

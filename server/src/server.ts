@@ -1,6 +1,10 @@
 import http from "http";
 import { Request, Response } from "express";
 
+import Debug from "debug";
+
+const debug = Debug("relang:express");
+
 function startHttpServer(): http.Server {
   const express = require("express");
 
@@ -18,7 +22,7 @@ function startHttpServer(): http.Server {
   const server: http.Server = http.createServer(app);
 
   server.listen(port, () => {
-    console.log("Server listen to port:", port);
+    debug("Server listen to port:", port);
   });
   return server;
 }
