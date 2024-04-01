@@ -20,7 +20,12 @@ on:
       - "*"
 
 jobs:
-  build:
+  buildserver:
+    name: build-server
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+
     runs-on: ubuntu-latest
 
     strategy:
@@ -48,10 +53,9 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Docker build Server Backend
-        # working-directory: ./DocumentApproach/Server
         run: |
-          docker build . -t ${{ secrets.DOCKER_REGISTRY }}/mqtt-server
-          docker tag ${{ secrets.DOCKER_REGISTRY }}/mqtt-server ${{ secrets.DOCKER_REGISTRY }}/mqtt-server:$NOW
-          docker image push ${{ secrets.DOCKER_REGISTRY }}/mqtt-server
+          docker build . -t ${{ secrets.DOCKER_REGISTRY }}/game-server
+          docker tag ${{ secrets.DOCKER_REGISTRY }}/game-server ${{ secrets.DOCKER_REGISTRY }}/game-server:$NOW
+          docker image push ${{ secrets.DOCKER_REGISTRY }}/game-server
         env:
           CI: true
