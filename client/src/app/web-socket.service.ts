@@ -13,6 +13,8 @@ export class WebSocketService {
   private message$ = new Subject();
 
   constructor() {
+    console.log("WebSocketService", environment.webSocketUrl);
+
     this.socket.on("connect", () => {
       console.log("connected to server");
       this.message$.next("connected to server");
