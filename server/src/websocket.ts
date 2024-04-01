@@ -1,14 +1,19 @@
 import http from "http";
 import { Server, Socket } from "socket.io";
+import Debug from "debug";
+
+const debug = Debug("relang:websocket");
 
 function startWebSocketServer(httpServer: http.Server) {
+  debug("Starting WebSocket server");
+
   const io = new Server(httpServer);
 
   io.on("connection", (socket: Socket) => {
-    console.log("A user connected");
+    debug("A user connected", socket.id);
 
-    socket.on("message", (data) => {
-      console.log("Received message:", data);
+    socket.on("message", (data: any) => {
+      debug("Received message:", socket.id, data);
 
       // Broadcast the message to all connected clients
       io.emit("message", data);
@@ -16,7 +21,7 @@ function startWebSocketServer(httpServer: http.Server) {
 
     // Handle disconnections
     socket.on("disconnect", () => {
-      console.log("A user disconnected");
+      debug("A user disconnected", socket.id);
     });
   });
 }
