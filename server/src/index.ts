@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 import { startHttpServer } from "./server";
 import { startWebSocketServer } from "./websocket";
 
