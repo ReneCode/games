@@ -14,9 +14,10 @@ function startHttpServer() {
     res.send(`<code>${result}</code>`);
   });
 
-  app.listen(port, () => {
-    console.log("server listen to port:", port);
+  const server = app.listen(port, () => {
+    console.log("Server listen to port:", port);
   });
+  return server;
 }
 
 export { startHttpServer };
