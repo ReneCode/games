@@ -1,0 +1,10 @@
+<div>
+  <input
+    #newName
+    type="text"
+    value="{{ username }}"
+    (keydown.enter)="onChangeName(newName.value)"
+    (blur)="onChangeName(newName.value)"
+  />
+  <!-- <button (click)="onChangeName(username)">Change Name</button> -->
+</div>

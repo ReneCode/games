@@ -3,6 +3,7 @@ import { Subject } from "rxjs";
 import { io } from "socket.io-client";
 
 import { environment } from "../environments/environment";
+import { User } from "./types";
 
 @Injectable({
   providedIn: "root",
@@ -10,6 +11,7 @@ import { environment } from "../environments/environment";
 export class WebSocketService {
   private socket = io(environment.webSocketUrl);
 
+  private users$ = new Subject<User[]>();
   private message$ = new Subject();
 
   constructor() {
@@ -30,13 +32,25 @@ export class WebSocketService {
       this.message$.next(message);
       console.log(`received message: ${message}`);
     });
+
+    this.socket.on("userlist", (users: User[]) => {
+      this.users$.next(users);
+    });
   }
 
   getMessage$() {
     return this.message$.asObservable();
   }
 
+  getUsers$() {
+    return this.users$.asObservable();
+  }
+
   sendMessage(message: string) {
     this.socket.emit("message", message);
+  }
+
+  setUserName(userName: string) {
+    this.socket.emit("setusername", userName);
   }
 }
