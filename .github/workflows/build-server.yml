@@ -24,7 +24,7 @@ jobs:
     name: build-server
     defaults:
       run:
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ./server
 
     runs-on: ubuntu-latest
 
