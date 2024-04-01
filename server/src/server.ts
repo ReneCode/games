@@ -10,7 +10,7 @@ function startHttpServer() {
   const port = process.env.PORT || 8080; // default port to listen
 
   app.get("/", (req: Request, res: Response) => {
-    let result = "hello world";
+    let result = "Hello world. This is: relang-server.";
     res.send(`<code>${result}</code>`);
   });
 
