@@ -1,6 +1,7 @@
+import http from "http";
 import { Request, Response } from "express";
 
-function startHttpServer() {
+function startHttpServer(): http.Server {
   const express = require("express");
 
   const app = express();
@@ -14,7 +15,7 @@ function startHttpServer() {
     res.send(`<code>${result}</code>`);
   });
 
-  const server = app.listen(port, () => {
+  const server: http.Server = app.listen(port, () => {
     console.log("Server listen to port:", port);
   });
   return server;
