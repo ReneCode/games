@@ -1,86 +1,61 @@
 //
 
-import { on } from "events";
+import { useEffect, useRef, useState } from "react";
 import styles from "./GameBoard.module.css";
+import { Game, RenderCell } from "./game";
 
-type RenderCell = {
-  player: string;
-  val: number;
-  cell: number;
-};
+export function GameBoard() {
+  const game = useRef<Game>(null);
 
-export function RenderLine({ line }: { line: RenderCell[] }) {
-  console.log(">>", line.length, line);
+  const [board, setBoard] = useState<RenderCell[][]>([]);
 
   const onClickCell = (cell: RenderCell) => {
-    console.log("Clicked cell:", cell);
+    game.current?.step(cell.cell);
+    const b = game.current?.getRenderBoard();
+    if (b) {
+      setBoard(b);
+    }
   };
 
+  useEffect(() => {
+    const g = new Game();
+    game.current = g;
+    setBoard(g.getRenderBoard());
+  }, []);
+
   return (
-    <div className={styles.line}>
-      {line.map((cell, index) => {
-        return (
-          <div
-            key={index}
-            className={styles.cell}
-            style={{ color: cell.player === "A" ? "red" : "blue" }}
-            onClick={() => onClickCell(cell)}
-          >
-            {cell.player === "none" ? null : cell.val}
+    <div>
+      <div className={styles.board}>
+        {board.map((cells, index) => (
+          <div key={index} className={styles.line}>
+            {cells.map((cell) => (
+              <div
+                key={cell.cell}
+                className={styles.cell}
+                style={{
+                  color: cell.player === "A" ? "red" : "blue",
+                  backgroundColor:
+                    cell.type === "normal"
+                      ? "lightgray"
+                      : cell.type === "blackHole"
+                      ? "black"
+                      : "gray",
+                }}
+                onClick={() => onClickCell(cell)}
+              >
+                {cell.player === "none" ? null : cell.val}
+              </div>
+            ))}
           </div>
-        );
-      })}
-    </div>
-  );
-}
-
-export function GameBoard({
-  playerA,
-  playerB,
-}: {
-  playerA: Record<number, number>;
-  playerB: Record<number, number>;
-}) {
-  const board = createRenderBoard(playerA, playerB);
-  console.log("board", board);
-
-  return (
-    <div className={styles.board}>
-      {board.map((cells, index) => (
-        <div key={index}>
-          <RenderLine line={cells} />
+        ))}
+      </div>
+      {game.current && game.current.finished() && (
+        <div>
+          <h2>Game Info</h2>
+          <p>Player A Sum: {game.current?.sumA}</p>
+          <p>Player B Sum: {game.current?.sumB}</p>
         </div>
-      ))}
+      )}
     </div>
   );
-}
-
-function createRenderBoard(
-  playerA: Record<number, number>,
-  playerB: Record<number, number>
-) {
-  const board: RenderCell[][] = [];
-  let cell = 0;
-  let maxCols = 0;
-  for (let row = 0; row < 6; row++) {
-    maxCols++;
-    let oneRow: RenderCell[] = [];
-    for (let col = 0; col < maxCols; col++) {
-      cell++;
-
-      const valA = playerA[cell];
-      if (valA) {
-        oneRow.push({ player: "A", val: valA, cell });
-      } else {
-        const valB = playerB[cell];
-        if (valB) {
-          oneRow.push({ player: "B", val: valB, cell });
-        } else {
-          oneRow.push({ player: "none", val: 0, cell });
-        }
-      }
-    }
-    board.push(oneRow);
-  }
-  return board;
 }

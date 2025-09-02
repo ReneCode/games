@@ -1,11 +1,25 @@
 //
 
-class Game {
+export type RenderCell = {
+  player: string;
+  val: number;
+  cell: number;
+  type: "normal" | "blackHole" | "calculate";
+};
+
+export class Game {
   private playerA: Array<number> = [];
   private playerB: Array<number> = [];
+  private currentPlayer: "A" | "B" = "A";
+  public sumA = 0;
+  public sumB = 0;
 
   MAX_STEPS = 10;
   MAX_CELLS = 21;
+
+  constructor() {
+    console.log("Game initialized");
+  }
 
   toJson() {
     return {
@@ -19,7 +33,14 @@ class Game {
     this.playerB = json.playerB || [];
   }
 
-  step(player: "A" | "B", cellNumber: number) {
+  finished() {
+    return (
+      this.playerA.length === this.MAX_STEPS &&
+      this.playerB.length === this.MAX_STEPS
+    );
+  }
+
+  step(cellNumber: number) {
     // Check if the cell is already occupied
     if (
       this.playerA.includes(cellNumber) ||
@@ -28,7 +49,7 @@ class Game {
       throw new Error("Cell already occupied");
     }
 
-    if (player === "A") {
+    if (this.currentPlayer === "A") {
       if (this.playerA.length < this.MAX_STEPS) {
         this.playerA.push(cellNumber);
       } else {
@@ -42,30 +63,98 @@ class Game {
       }
     }
 
+    this.currentPlayer = this.currentPlayer === "A" ? "B" : "A";
     return true;
   }
 
-  getWinner() {
-    if (
-      this.playerA.length !== this.MAX_STEPS ||
-      this.playerB.length === this.MAX_STEPS
-    ) {
-      throw new Error("Game not finished");
+  getRenderBoard() {
+    const findCell = (cellNumber: number): RenderCell | undefined => {
+      const aIdx = this.playerA.findIndex((c) => c === cellNumber);
+      if (aIdx !== -1) {
+        return {
+          player: "A",
+          val: aIdx + 1,
+          cell: cellNumber,
+          type: "normal",
+        };
+      }
+      const bIdx = this.playerB.findIndex((c) => c === cellNumber);
+      if (bIdx !== -1) {
+        return {
+          player: "B",
+          val: bIdx + 1,
+          cell: cellNumber,
+          type: "normal",
+        };
+      }
+      return undefined;
+    };
+
+    const board: RenderCell[][] = [];
+    let cellNumber = 0;
+    let maxCols = 0;
+    for (let row = 0; row < 6; row++) {
+      maxCols++;
+      let oneRow: RenderCell[] = [];
+      for (let col = 0; col < maxCols; col++) {
+        cellNumber++;
+
+        const found = findCell(cellNumber);
+        if (found) {
+          oneRow.push(found);
+        } else {
+          oneRow.push({
+            player: "none",
+            val: 0,
+            cell: cellNumber,
+            type: "normal",
+          });
+        }
+      }
+      board.push(oneRow);
     }
 
-    const blackHole = this.getBlackHole();
-
-    let cellsAroundBlackHole = [];
-
-    const sumA = this.playerA.reduce((a, b) => a + b, 0);
-    const sumB = this.playerB.reduce((a, b) => a + b, 0);
-    if (sumA > sumB) {
-      return "A";
-    } else if (sumB > sumA) {
-      return "B";
+    if (this.finished()) {
+      const blackHole = this.getBlackHole();
+      const { sumA, sumB } = this.getSumms(blackHole);
+      this.sumA = sumA;
+      this.sumB = sumB;
+      return this.darkenCells(board, blackHole);
     } else {
-      return "Draw";
+      return board;
     }
+  }
+
+  public darkenCells(board: RenderCell[][], blackHole: number): RenderCell[][] {
+    const cellsAround = this.getCellsAround(blackHole);
+
+    return board.map((row) => {
+      return row.map((cell) => {
+        if (cellsAround.includes(cell.cell)) {
+          return { ...cell, type: "calculate" };
+        } else if (cell.cell === blackHole) {
+          return { ...cell, type: "blackHole" };
+        }
+        return cell;
+      });
+    });
+  }
+
+  private getSumms(blackHole: number) {
+    const cellsAround = this.getCellsAround(blackHole);
+    let sumA = 0;
+    let sumB = 0;
+    for (const cell of cellsAround) {
+      const idxA = this.playerA.findIndex((c) => c === cell);
+      if (idxA !== -1) {
+        sumA += idxA + 1;
+      }
+      const idxB = this.playerB.findIndex((c) => c === cell);
+      if (idxB !== -1) {
+        sumB += idxB + 1;
+      }
+    }
+    return { sumA, sumB };
   }
 
   private getCellsAround(cellNumber: number) {
@@ -97,7 +186,7 @@ class Game {
       case 13:
         return [8, 9, 12, 14, 18, 19];
       case 14:
-        return [9, 10, 13, 14, 19, 20];
+        return [9, 10, 13, 15, 19, 20];
       case 15:
         return [10, 14, 20, 21];
       case 16:
