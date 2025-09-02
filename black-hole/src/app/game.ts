@@ -21,18 +21,6 @@ export class Game {
     console.log("Game initialized");
   }
 
-  toJson() {
-    return {
-      playerA: this.playerA,
-      playerB: this.playerB,
-    };
-  }
-
-  fromJson(json: any) {
-    this.playerA = json.playerA || [];
-    this.playerB = json.playerB || [];
-  }
-
   finished() {
     return (
       this.playerA.length === this.MAX_STEPS &&
@@ -95,7 +83,7 @@ export class Game {
     let maxCols = 0;
     for (let row = 0; row < 6; row++) {
       maxCols++;
-      let oneRow: RenderCell[] = [];
+      const oneRow: RenderCell[] = [];
       for (let col = 0; col < maxCols; col++) {
         cellNumber++;
 
