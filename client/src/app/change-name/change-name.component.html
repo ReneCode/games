@@ -1,4 +1,5 @@
-<div>
+<div class="container">
+  <div>My Name:</div>
   <input
     #newName
     type="text"
@@ -6,5 +7,5 @@
     (keydown.enter)="onChangeName(newName.value)"
     (blur)="onChangeName(newName.value)"
   />
-  <!-- <button (click)="onChangeName(username)">Change Name</button> -->
+  <button (click)="onChangeName(username)">Change Name</button>
 </div>
