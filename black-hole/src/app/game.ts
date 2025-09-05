@@ -8,9 +8,12 @@ export type RenderCell = {
 };
 
 export class Game {
+  public id: string = "abc123";
   private playerA: Array<number> = [];
   private playerB: Array<number> = [];
-  private currentPlayer: "A" | "B" = "A";
+  public currentPlayer: "A" | "B" | "" = "";
+  private nameA: string = "";
+  private nameB: string = "";
   public sumA = 0;
   public sumB = 0;
 
@@ -21,11 +24,59 @@ export class Game {
     console.log("Game initialized");
   }
 
+  restart() {
+    this.playerA = [];
+    this.playerB = [];
+    this.currentPlayer = "A";
+    this.nameA = "";
+    this.nameB = "";
+    this.sumA = 0;
+    this.sumB = 0;
+
+    this.sendUpdate();
+  }
+
   finished() {
     return (
       this.playerA.length === this.MAX_STEPS &&
       this.playerB.length === this.MAX_STEPS
     );
+  }
+
+  blank() {
+    return this.playerA.length + this.playerB.length === 0;
+  }
+
+  onNewData(data: any) {
+    console.log("New data received:", data);
+    this.id = data.id;
+    this.playerA = data.playerA;
+    this.playerB = data.playerB;
+    this.currentPlayer = data.currentPlayer;
+    this.nameA = data.nameA;
+    this.nameB = data.nameB;
+    this.sumA = data.sumA;
+    this.sumB = data.sumB;
+  }
+
+  // callback if game state changes
+  onChangeData: (data: any) => void = (data: any) => {};
+
+  sendUpdate() {
+    if (this.onChangeData) {
+      const data = {
+        id: this.id,
+        playerA: this.playerA,
+        playerB: this.playerB,
+        currentPlayer: this.currentPlayer,
+        nameA: this.nameA,
+        nameB: this.nameB,
+        sumA: this.sumA,
+        sumB: this.sumB,
+      };
+
+      this.onChangeData(data);
+    }
   }
 
   step(cellNumber: number) {
@@ -51,7 +102,18 @@ export class Game {
       }
     }
 
-    this.currentPlayer = this.currentPlayer === "A" ? "B" : "A";
+    if (this.finished()) {
+      const blackHole = this.getBlackHole();
+      const { sumA, sumB } = this.getSumms(blackHole);
+      this.sumA = sumA;
+      this.sumB = sumB;
+      this.currentPlayer = "";
+    } else {
+      this.currentPlayer = this.currentPlayer === "A" ? "B" : "A";
+    }
+
+    this.sendUpdate();
+
     return true;
   }
 
@@ -104,9 +166,6 @@ export class Game {
 
     if (this.finished()) {
       const blackHole = this.getBlackHole();
-      const { sumA, sumB } = this.getSumms(blackHole);
-      this.sumA = sumA;
-      this.sumB = sumB;
       return this.darkenCells(board, blackHole);
     } else {
       return board;

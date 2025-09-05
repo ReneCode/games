@@ -25,3 +25,8 @@
   background-color: #f0f0f0;
   font-weight: bolder;
 }
+
+.startButton {
+  padding: 4px 8px;
+  font-size: large;
+}
