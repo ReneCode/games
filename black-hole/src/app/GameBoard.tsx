@@ -2,15 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import styles from "./GameBoard.module.css";
-import { Game, RenderCell } from "./game";
-import {
-  collection,
-  doc,
-  getDocs,
-  getFirestore,
-  onSnapshot,
-  setDoc,
-} from "firebase/firestore";
+import { Game, GameData, RenderCell } from "./game";
+import { collection, doc, onSnapshot, setDoc } from "firebase/firestore";
 import { db } from "./firebase";
 
 export function GameBoard() {
@@ -44,7 +37,9 @@ export function GameBoard() {
   useEffect(() => {
     const col = collection(db, "games");
     const unsubscribe = onSnapshot(col, (snapshot) => {
-      const data = snapshot.docs.map((doc) => doc.data())[0];
+      const data: GameData = snapshot.docs.map((doc) =>
+        doc.data()
+      )[0] as GameData;
       // if (me === "" && data.currentPlayer) {
       //   setMe(data.currentPlayer);
       // }
@@ -59,7 +54,7 @@ export function GameBoard() {
     const g = new Game();
     game.current = g;
 
-    g.onChangeData = (data: any) => {
+    g.onChangeData = (data: GameData) => {
       // set data in firestore
       // document is games/id
       if (game.current) {

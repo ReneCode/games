@@ -7,13 +7,24 @@ export type RenderCell = {
   type: "normal" | "blackHole" | "calculate";
 };
 
-export class Game {
-  public id: string = "abc123";
-  private playerA: Array<number> = [];
-  private playerB: Array<number> = [];
+export interface GameData {
+  id: string;
+  playerA: Array<number>;
+  playerB: Array<number>;
+  currentPlayer: "A" | "B" | "";
+  nameA: string;
+  nameB: string;
+  sumA: number;
+  sumB: number;
+}
+
+export class Game implements GameData {
+  public id: string = "abc";
+  public playerA: Array<number> = [];
+  public playerB: Array<number> = [];
   public currentPlayer: "A" | "B" | "" = "";
-  private nameA: string = "";
-  private nameB: string = "";
+  public nameA: string = "";
+  public nameB: string = "";
   public sumA = 0;
   public sumB = 0;
 
@@ -47,7 +58,7 @@ export class Game {
     return this.playerA.length + this.playerB.length === 0;
   }
 
-  onNewData(data: any) {
+  onNewData(data: GameData) {
     console.log("New data received:", data);
     this.id = data.id;
     this.playerA = data.playerA;
@@ -60,11 +71,11 @@ export class Game {
   }
 
   // callback if game state changes
-  onChangeData: (data: any) => void = (data: any) => {};
+  onChangeData: (data: GameData) => void = (_data: GameData) => {};
 
   sendUpdate() {
     if (this.onChangeData) {
-      const data = {
+      const data: GameData = {
         id: this.id,
         playerA: this.playerA,
         playerB: this.playerB,
